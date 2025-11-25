@@ -1,0 +1,28 @@
+package com.example.market.controller;
+
+import com.example.market.dto.create.CartItemCreateDto;
+import com.example.market.dto.response.CartItemResponseDto;
+import com.example.market.service.CartService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+public class CartController {
+
+    private final CartService cartService;
+
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
+    }
+
+    @GetMapping("/users/{id}/cart")
+    public List<CartItemResponseDto> getCartByUser(@PathVariable long id){
+        return cartService.getCartByUser(id);
+    }
+
+
+
+
+}
