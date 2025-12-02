@@ -17,12 +17,15 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @GetMapping("/users/{id}/cart")
+    @GetMapping("/cart/{id}")
     public List<CartItemResponseDto> getCartByUser(@PathVariable long id){
         return cartService.getCartByUser(id);
     }
 
 
-
+    @PostMapping("/cart/add")
+    public CartItemResponseDto addCartItem(@RequestBody CartItemCreateDto cartItemDto){
+        return cartService.addCartItem(cartItemDto);
+    }
 
 }

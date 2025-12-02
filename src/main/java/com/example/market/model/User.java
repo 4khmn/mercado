@@ -15,11 +15,15 @@ public class User {
     private long id;
 
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false)
     private String email;
+
+    private String password;
+
+    private String roles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cart;

@@ -10,6 +10,7 @@ import com.example.market.repository.CartItemRepository;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -33,5 +34,10 @@ public class CartService {
         return cartItems;
     }
 
+    public CartItemResponseDto addCartItem(CartItemCreateDto cartItemDto){
+        CartItem cartItem = cartMapper.toEntity(cartItemDto);
+        cartItemRepository.save(cartItem);
+        return cartMapper.toDto(cartItem);
+    }
 
 }
