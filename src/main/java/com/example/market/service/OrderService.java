@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.dto.create.OrderCreateDto;
 import com.example.market.dto.response.OrderResponseDto;
+import com.example.market.exception.NotFoundException;
 import com.example.market.mapper.OrderMapper;
 import com.example.market.model.Order;
 import com.example.market.model.OrderItem;
@@ -10,6 +11,7 @@ import com.example.market.model.User;
 import com.example.market.repository.OrderRepository;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,11 +33,13 @@ public class OrderService {
 
     public OrderResponseDto createOrder(OrderCreateDto dto){
         Order order = new Order();
-        User user = userRepository.getUserById(dto.getUserId());
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new NotFoundException("User with id=" + dto.getUserId() + " not found"));
         order.setUser(user);
         order.setCreatedAt(LocalDateTime.now());
         List<OrderItem> items = dto.getItems().stream().map(itemDto -> {
-            Product product = productRepository.getProductById(itemDto.getProductId());
+            Product product = productRepository.findById(itemDto.getProductId())
+                    .orElseThrow(() -> new NotFoundException("Product with id=" + itemDto.getProductId() + " not found"));
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(product);
@@ -56,7 +60,8 @@ public class OrderService {
         return orders.stream().map(mapper::toDto).toList();
     }
     public OrderResponseDto getOrderById(long id){
-        Order order = orderRepository.getOrderById(id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Order with id=" + id + " not found"));
         return mapper.toDto(order);
     }
     public List<OrderResponseDto> getOrdersByUser(long userId){

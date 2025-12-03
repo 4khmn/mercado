@@ -9,6 +9,8 @@ import com.example.market.model.Product;
 import com.example.market.model.Shop;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.ShopRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +35,8 @@ public class ShopService {
     }
 
     public ShopResponseDto getShopById(long id){
-        Shop shop = shopRepository.getShopById(id);
+        Shop shop = shopRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Shop with id=" + id + " not found"));
         return shopMapper.toDto(shop);
     }
     public ShopResponseDto createShop(ShopCreateDto dto){
