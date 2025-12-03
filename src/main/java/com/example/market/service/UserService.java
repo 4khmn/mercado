@@ -7,6 +7,7 @@ import com.example.market.mapper.CartMapper;
 import com.example.market.mapper.UserMapper;
 import com.example.market.model.User;
 import com.example.market.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -39,7 +40,8 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponseDto getUserById(long id){
-        User user = userRepository.getUserById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with id=" + id + " not found"));
         return userMapper.toDto(user);
     }
 

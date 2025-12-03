@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface ShopRepository extends JpaRepository<Shop, Long> {
 
-    Shop getShopById(long id);
+
 
 }
