@@ -1,9 +1,10 @@
 package com.example.market.controller;
 
 
-import com.example.market.dto.create.CartItemCreateDto;
+import com.example.market.annotation.CreatedEntity;
+import com.example.market.annotation.GetAllEntities;
+import com.example.market.annotation.GetEntity;
 import com.example.market.dto.create.UserCreateDto;
-import com.example.market.dto.response.CartItemResponseDto;
 import com.example.market.dto.response.UserResponseDto;
 import com.example.market.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,25 +23,24 @@ public class UserController {
         this.userService = userService;
     }
 
+    @CreatedEntity("User")
     @PostMapping("/users")
     public UserResponseDto createUser(@RequestBody UserCreateDto user){
-        log.info("POST /api/users — creating new user with username={}", user.getName());
         UserResponseDto created = userService.createUser(user);
-        log.info("User created successfully with id={}", created.getId());
         return created;
     }
 
+    @GetAllEntities("User")
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public List<UserResponseDto> getAllUsers(){
-        log.info("GET /api/users — fetching all users");
         return userService.getALlUsers();
     }
 
     @GetMapping("/users/{id}")
+    @GetEntity("User")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public UserResponseDto getUserById(@PathVariable long id){
-        log.info("GET /api/users/{} — fetching user", id);
         return userService.getUserById(id);
     }
 
