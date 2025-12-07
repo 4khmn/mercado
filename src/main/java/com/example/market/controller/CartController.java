@@ -3,10 +3,11 @@ package com.example.market.controller;
 import com.example.market.dto.create.CartItemCreateDto;
 import com.example.market.dto.response.CartItemResponseDto;
 import com.example.market.service.CartService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class CartController {
