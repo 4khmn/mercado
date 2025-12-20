@@ -1,5 +1,6 @@
 package com.example.market.service;
 
+import com.example.market.dto.create.UserCreateDto;
 import com.example.market.model.User;
 import com.example.market.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -13,8 +14,13 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
 
-    public void addUser(User user){
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User addUser(UserCreateDto dto){
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setRoles("ROLE_USER");
         userRepository.save(user);
+        return user;
     }
 }

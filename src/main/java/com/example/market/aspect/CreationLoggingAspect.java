@@ -69,7 +69,7 @@ public class CreationLoggingAspect {
 
     private String extractName(Object dto) {
         if (dto instanceof UserCreateDto) {
-            return ((UserCreateDto) dto).getName();
+            return ((UserCreateDto) dto).getUsername();
         }
         else if (dto instanceof ShopCreateDto) {
             return ((ShopCreateDto) dto).getName();

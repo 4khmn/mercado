@@ -20,6 +20,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
     }
+    @ExceptionHandler(IllegalQuantityException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalQuantity(IllegalQuantityException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
+    }
 
 
     @ExceptionHandler(Exception.class)

@@ -20,8 +20,7 @@ public class ProductController {
     @CreatedEntity("Product")
     @PostMapping("/products")
     public ProductResponseDto createProduct(@RequestBody ProductCreateDto product){
-        ProductResponseDto created = productService.createProduct(product);
-        return created;
+        return productService.createProduct(product);
     }
 
     @GetAllEntities("Product")

@@ -1,24 +1,18 @@
 package com.example.market.service;
 
-import com.example.market.config.MyUserDetails;
 import com.example.market.dto.create.UserCreateDto;
 import com.example.market.dto.response.UserResponseDto;
-import com.example.market.mapper.CartMapper;
 import com.example.market.mapper.UserMapper;
 import com.example.market.model.User;
 import com.example.market.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
 
     @Autowired
@@ -45,18 +39,17 @@ public class UserService implements UserDetailsService {
         return userMapper.toDto(user);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.getUserByName(username);
-        return user.map(MyUserDetails::new)
-                .orElseThrow(()-> new UsernameNotFoundException(username + " not found"));
-    }
 
     public UserResponseDto getUserByNameDto(String username) {
-        Optional<User> userOpt = userRepository.getUserByName(username);
-        if (userOpt.isEmpty()) {
-            throw new UsernameNotFoundException(username + " not found");
-        }
-        return userMapper.toDto(userOpt.get());
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserResponseDto dto = new UserResponseDto();
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setId(user.getId());
+        return dto;
     }
+
+
 }
