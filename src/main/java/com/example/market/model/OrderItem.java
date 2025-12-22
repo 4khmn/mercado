@@ -20,6 +20,7 @@ public class OrderItem {
             nullable = false)
     private Order order;
 
+
     @ManyToOne
     @JoinColumn(
             name = "product_id",

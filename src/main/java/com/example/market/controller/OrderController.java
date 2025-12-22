@@ -6,7 +6,6 @@ import com.example.market.dto.create.OrderCreateDto;
 import com.example.market.dto.response.OrderResponseDto;
 import com.example.market.model.User;
 import com.example.market.service.OrderService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +21,11 @@ public class OrderController {
     }
 
 
-    @CreatedEntity("Order")
+//    @CreatedEntity("Order")
     @PostMapping("/orders")
-    public OrderResponseDto createOrder(@RequestBody OrderCreateDto order){
-        OrderResponseDto created = orderService.createOrder(order);
-        return created;
+    public OrderResponseDto createOrder(@AuthenticationPrincipal User user,
+                                        @RequestBody OrderCreateDto request){
+        return orderService.createOrder(user, request.getCartItemIds());
     }
 
     @GetMapping("/admin/orders")
@@ -37,7 +36,7 @@ public class OrderController {
 
     @GetMapping("/orders")
     public List<OrderResponseDto> getOrdersByUser(@AuthenticationPrincipal User user){
-        return orderService.getOrdersByUser(user.getId());
+        return orderService.getOrdersByUser(user);
     }
 
     @GetEntity("Order")
@@ -49,7 +48,7 @@ public class OrderController {
 
     @GetMapping("/admin/users/{userId}/orders")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<OrderResponseDto> getOrdersByUser(@PathVariable long userId){
-        return orderService.getOrdersByUser(userId);
+    public List<OrderResponseDto> getOrdersByUserPathVariable(@PathVariable long userId){
+        return orderService.getOrdersByUserPathVariable(userId);
     }
 }

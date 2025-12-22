@@ -20,7 +20,7 @@ public class JwtUtil {
             SECRET.getBytes(StandardCharsets.UTF_8)
     );
     // Время жизни токена (1 час)
-    private final long expirationMs = 3600000; // 60 * 60 * 1000
+    private final long expirationMs = 36000000; // 60 * 60 * 1000
 
     public String generateToken(String username, String roles) {
         return Jwts.builder()

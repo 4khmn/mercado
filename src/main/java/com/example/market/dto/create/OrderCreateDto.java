@@ -6,9 +6,5 @@ import java.util.List;
 
 @Data
 public class OrderCreateDto {
-
-    private long userId;
-
-    private List<OrderItemCreateDto> items;
-
+    private List<Long> cartItemIds;
 }

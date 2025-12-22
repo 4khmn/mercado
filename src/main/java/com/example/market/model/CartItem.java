@@ -25,8 +25,6 @@ public class CartItem {
     private long quantity;
 
 
-    @Column(nullable = false)
-    private BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

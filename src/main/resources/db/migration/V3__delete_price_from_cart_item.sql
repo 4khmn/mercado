@@ -1,0 +1,2 @@
+ALTER TABLE cart_item
+DROP COLUMN price;

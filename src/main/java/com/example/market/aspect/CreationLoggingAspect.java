@@ -77,9 +77,6 @@ public class CreationLoggingAspect {
         else if (dto instanceof ProductCreateDto) {
             return ((ProductCreateDto) dto).getTitle();
         }
-        else if (dto instanceof OrderCreateDto) {
-            return String.valueOf(((OrderCreateDto) dto).getUserId());
-        }
         return "unknown";
     }
 

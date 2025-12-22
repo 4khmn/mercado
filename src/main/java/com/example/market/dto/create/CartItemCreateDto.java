@@ -10,6 +10,4 @@ public class CartItemCreateDto {
 
     private long productId;
 
-    private BigDecimal price;
-
 }

@@ -75,7 +75,6 @@ public class CartService {
                 cartItem.setUser(user);
                 cartItem.setQuantity(1);
                 cartItem.setProduct(product);
-                cartItem.setPrice(cartItemDto.getPrice());
                 cartItemRepository.save(cartItem);
             }
             else{
