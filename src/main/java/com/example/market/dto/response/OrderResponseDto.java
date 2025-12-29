@@ -2,6 +2,7 @@ package com.example.market.dto.response;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -10,9 +11,13 @@ public class OrderResponseDto {
 
     private Long id;
 
-    private UserResponseDto user;
+    private long userId;
 
     private List<OrderItemResponseDto> items;
 
     private LocalDateTime createdAt;
+
+    private BigDecimal totalPrice;
+
+    private long totalItemsQuantity;
 }

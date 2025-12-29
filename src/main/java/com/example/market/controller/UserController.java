@@ -1,11 +1,10 @@
 package com.example.market.controller;
 
 
-import com.example.market.annotation.CreatedEntity;
 import com.example.market.annotation.GetAllEntities;
 import com.example.market.annotation.GetEntity;
-import com.example.market.dto.create.UserCreateDto;
 import com.example.market.dto.response.UserResponseDto;
+import com.example.market.dto.update.UpdateEmailDto;
 import com.example.market.model.User;
 import com.example.market.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +43,12 @@ public class UserController {
     public UserResponseDto me(@AuthenticationPrincipal User user) {
         String username = user.getUsername();
         log.info("GET /api/me — fetching current user {}", username);
-        return userService.getUserByNameDto(username);
+        return userService.me(username);
+    }
+
+    @PutMapping("/edit/email")
+    public UserResponseDto editEmail(@AuthenticationPrincipal User user,
+                                     @RequestBody UpdateEmailDto updateEmailDto){
+        return userService.updateEmail(user.getUsername(), updateEmailDto);
     }
 }

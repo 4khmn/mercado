@@ -9,7 +9,7 @@ public class OrderItemResponseDto {
 
     private Long id;
 
-    private ProductResponseDto product;
+    private long productId;
 
     private long quantity;
 

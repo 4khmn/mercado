@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.dto.create.UserCreateDto;
 import com.example.market.dto.response.UserResponseDto;
+import com.example.market.dto.update.UpdateEmailDto;
 import com.example.market.mapper.UserMapper;
 import com.example.market.model.User;
 import com.example.market.repository.UserRepository;
@@ -40,15 +41,21 @@ public class UserService {
     }
 
 
-    public UserResponseDto getUserByNameDto(String username) {
+    public UserResponseDto me(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         UserResponseDto dto = new UserResponseDto();
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        dto.setId(user.getId());
-        return dto;
+        return userMapper.toDto(user);
+    }
+
+    public UserResponseDto updateEmail(String username, UpdateEmailDto updateEmailDto){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setEmail(updateEmailDto.getEmail());
+        userRepository.save(user);
+        return userMapper.toDto(user);
+
     }
 
 
