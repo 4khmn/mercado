@@ -47,8 +47,4 @@ public class ProductService {
                 .orElseThrow(()-> new EntityNotFoundException("Product with id=" + id + " not found"));
         return mapper.toDto(product);
     }
-
-
-
-
 }
