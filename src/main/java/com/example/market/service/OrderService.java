@@ -16,6 +16,8 @@ import com.example.market.repository.ProductRepository;
 import com.example.market.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
@@ -87,23 +89,23 @@ public class OrderService {
         return orderResponseDto;
     }
 
-    public List<OrderResponseDto> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
-        return orders.stream().map(mapper::toDto).toList();
+    public Page<OrderResponseDto> getAllOrders(Pageable pageable) {
+        Page<Order> orders = orderRepository.findAll(pageable);
+        return orders.map(mapper::toDto);
     }
     public OrderResponseDto getOrderById(long id){
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order with id=" + id + " not found"));
         return mapper.toDto(order);
     }
-    public List<OrderResponseDto> getOrdersByUserPathVariable(long userId){
-        List<Order> orders = orderRepository.findByUserId(userId);
-        return orders.stream().map(mapper::toDto).toList();
+    public Page<OrderResponseDto> getOrdersByUserPathVariable(long userId, Pageable pageable){
+        Page<Order> orders = orderRepository.findByUserId(userId, pageable);
+        return orders.map(mapper::toDto);
     }
 
-    public List<OrderResponseDto> getOrdersByUser(User authUser){
+    public Page<OrderResponseDto> getOrdersByUser(User authUser, Pageable pageable){
         User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
-        List<Order> orders = orderRepository.findByUserId(user.getId());
-        return orders.stream().map(mapper::toDto).toList();
+        Page<Order> orders = orderRepository.findByUserId(user.getId(), pageable);
+        return orders.map(mapper::toDto);
     }
 }

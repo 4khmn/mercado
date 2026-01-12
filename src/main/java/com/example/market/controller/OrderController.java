@@ -1,11 +1,13 @@
 package com.example.market.controller;
 
-import com.example.market.annotation.CreatedEntity;
 import com.example.market.annotation.GetEntity;
 import com.example.market.dto.create.OrderCreateDto;
 import com.example.market.dto.response.OrderResponseDto;
 import com.example.market.model.User;
 import com.example.market.service.OrderService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @RequestMapping("/api")
+@Slf4j
 public class OrderController {
     private final OrderService orderService;
 
@@ -21,22 +24,24 @@ public class OrderController {
     }
 
 
-//    @CreatedEntity("Order")
     @PostMapping("/orders")
     public OrderResponseDto createOrder(@AuthenticationPrincipal User user,
                                         @RequestBody OrderCreateDto request){
-        return orderService.createOrder(user, request.getCartItemIds());
+        log.info("POST /api/orders - creating order for user with id={} with cartItemIds={} ", user.getId(), request.getCartItemIds());
+        OrderResponseDto created = orderService.createOrder(user, request.getCartItemIds());
+        log.info("order created successfully with id={}", created.getId());
+        return created;
     }
 
     @GetMapping("/admin/orders")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<OrderResponseDto> getAllOrders(){
-        return orderService.getAllOrders();
+    public Page<OrderResponseDto> getAllOrders(Pageable pageable){
+        return orderService.getAllOrders(pageable);
     }
 
     @GetMapping("/orders")
-    public List<OrderResponseDto> getOrdersByUser(@AuthenticationPrincipal User user){
-        return orderService.getOrdersByUser(user);
+    public Page<OrderResponseDto> getOrdersByUser(@AuthenticationPrincipal User user, Pageable pageable){
+        return orderService.getOrdersByUser(user, pageable);
     }
 
     @GetEntity("Order")
@@ -48,7 +53,7 @@ public class OrderController {
 
     @GetMapping("/admin/users/{userId}/orders")
     @PreAuthorize("hasRole('ADMIN')")
-    public List<OrderResponseDto> getOrdersByUserPathVariable(@PathVariable long userId){
-        return orderService.getOrdersByUserPathVariable(userId);
+    public Page<OrderResponseDto> getOrdersByUserPathVariable(@PathVariable long userId, Pageable pageable){
+        return orderService.getOrdersByUserPathVariable(userId, pageable);
     }
 }

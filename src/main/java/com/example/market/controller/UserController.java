@@ -8,11 +8,12 @@ import com.example.market.dto.update.UpdateEmailDto;
 import com.example.market.model.User;
 import com.example.market.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -27,8 +28,8 @@ public class UserController {
     @GetAllEntities("User")
     @GetMapping("/admin/users")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public List<UserResponseDto> getAllUsers(){
-        return userService.getALlUsers();
+    public Page<UserResponseDto> getAllUsers(Pageable pageable){
+        return userService.getALlUsers(pageable);
     }
 
     @GetMapping("/admin/users/{id}")
@@ -38,11 +39,10 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-
     @GetMapping("/profile")
     public UserResponseDto me(@AuthenticationPrincipal User user) {
         String username = user.getUsername();
-        log.info("GET /api/me — fetching current user {}", username);
+        log.info("GET /api/profile — fetching current user with username={}", username);
         return userService.me(username);
     }
 

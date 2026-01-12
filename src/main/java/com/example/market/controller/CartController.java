@@ -1,5 +1,6 @@
 package com.example.market.controller;
 
+import com.example.market.annotation.GetEntity;
 import com.example.market.dto.create.CartItemCreateDto;
 import com.example.market.dto.response.CartItemResponseDto;
 import com.example.market.model.User;
@@ -20,15 +21,15 @@ public class CartController {
     public CartController(CartService cartService) {
         this.cartService = cartService;
     }
-
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/admin/users/{userId}/cart")
     public List<CartItemResponseDto> getCartByUser(@PathVariable long id){
+        log.info("GET /api/admin/users/{userId}/cart - fetching cart by username with id={}", id, id);
         return cartService.getCartByUser(id);
     }
-
     @GetMapping("/cart")
     public List<CartItemResponseDto> getCart(@AuthenticationPrincipal User user){
+        log.info("GET /api/cart - fetching cart by username={}", user.getUsername());
         return cartService.getCart(user);
     }
 
@@ -36,7 +37,9 @@ public class CartController {
     @PostMapping("/products/add")
     public CartItemResponseDto addCartItem(@RequestBody CartItemCreateDto cartItemDto,
                                            @AuthenticationPrincipal User user){
-        return cartService.addCartItem(cartItemDto, user);
+        log.info("POST /api/products/add - add product with id={} for username={}", cartItemDto.getProductId(), user.getUsername());
+        CartItemResponseDto cartItemResponseDto = cartService.addCartItem(cartItemDto, user);
+        log.info("product with id={} has been added with cartItem id={}", cartItemDto.getProductId(), cartItemResponseDto.getId());
+        return cartItemResponseDto;
     }
-
 }

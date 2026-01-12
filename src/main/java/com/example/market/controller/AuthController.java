@@ -6,7 +6,6 @@ import com.example.market.dto.login.AuthResponse;
 import com.example.market.dto.login.LoginRequest;
 import com.example.market.model.User;
 import com.example.market.service.AuthService;
-import com.example.market.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +28,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public String addUser(@RequestBody UserCreateDto dto){
-        log.info("POST /api/new-user — user with username={} trying to register", dto.getUsername());
+        log.info("POST /api/register — user with username={} trying to register", dto.getUsername());
         User user = authService.addUser(dto);
         log.info("User created successfully with id={}", user.getId());
         return "User added successfully";

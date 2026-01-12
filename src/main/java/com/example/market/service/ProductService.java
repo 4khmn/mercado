@@ -9,6 +9,8 @@ import com.example.market.model.Shop;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.ShopRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,9 +27,9 @@ public class ProductService {
         this.mapper = mapper;
     }
 
-    public List<ProductResponseDto> getAllProducts(){
-        List<Product> products = productRepository.findAll();
-        return products.stream().map(mapper::toDto).toList();
+    public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
+        Page<Product> products = productRepository.findAll(pageable);
+        return products.map(mapper::toDto);
     }
 
     public ProductResponseDto createProduct(ProductCreateDto dto){

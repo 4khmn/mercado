@@ -11,6 +11,7 @@ import com.example.market.model.User;
 import com.example.market.repository.CartItemRepository;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -30,7 +31,6 @@ public class CartService {
         this.productRepository = productRepository;
         this.cartMapper = cartMapper;
     }
-
     public List<CartItemResponseDto> getCartByUser(long id){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id=" + id + " not found"));
@@ -44,11 +44,9 @@ public class CartService {
                 .toList();
         return cartItems;
     }
-
     public List<CartItemResponseDto> getCart(User authUser){
         User user = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
-
         List<CartItemResponseDto> cartItems = user.getCart().stream()
                 .map(cartItem -> {
                     CartItemResponseDto dto = cartMapper.toDto(cartItem);

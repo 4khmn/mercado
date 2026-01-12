@@ -10,6 +10,8 @@ import com.example.market.model.Shop;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.ShopRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +31,9 @@ public class ShopService {
         this.productMapper = productMapper;
     }
 
-    public List<ShopResponseDto> getAllShops(){
-        List<Shop> shops = shopRepository.findAll();
-        return shops.stream().map(shopMapper::toDto).toList();
+    public Page<ShopResponseDto> getAllShops(Pageable pageable) {
+        Page<Shop> shops = shopRepository.findAll(pageable);
+        return shops.map(shopMapper::toDto);
     }
 
     public ShopResponseDto getShopById(long id){
@@ -46,9 +48,9 @@ public class ShopService {
         return shopMapper.toDto(shop);
     }
 
-    public List<ProductResponseDto> getProductsByShop(long shopId){
-        List<Product> products = productRepository.getProductsByShopId(shopId);
-        return products.stream().map(productMapper::toDto).toList();
+    public Page<ProductResponseDto> getProductsByShop(long shopId, Pageable pageable){
+        Page<Product> products = productRepository.getProductsByShopId(shopId, pageable);
+        return products.map(productMapper::toDto);
     }
 
 }

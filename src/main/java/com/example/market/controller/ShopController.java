@@ -1,7 +1,6 @@
 package com.example.market.controller;
 
 
-import com.example.market.annotation.CreatedEntity;
 import com.example.market.annotation.GetAllEntities;
 import com.example.market.annotation.GetEntity;
 import com.example.market.dto.response.ProductResponseDto;
@@ -9,9 +8,12 @@ import com.example.market.dto.create.ShopCreateDto;
 import com.example.market.dto.response.ShopResponseDto;
 import com.example.market.service.ShopService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api")
@@ -23,17 +25,18 @@ public class ShopController {
         this.shopService = service;
     }
 
-    @CreatedEntity("Shop")
     @PostMapping("/shops")
     public ShopResponseDto createShop(@RequestBody ShopCreateDto shop){
+        log.info("POST api/shops - creating new shop with name={}", shop.getName());
         ShopResponseDto created = shopService.createShop(shop);
+        log.info("shop created successfully with id={}", created.getId());
         return created;
     }
 
     @GetAllEntities("Shop")
     @GetMapping("/shops")
-    public List<ShopResponseDto> getAllShops(){
-        return shopService.getAllShops();
+    public Page<ShopResponseDto> getAllShops(Pageable pageable){
+        return shopService.getAllShops(pageable);
     }
     @GetEntity("Shop")
     @GetMapping("/shops/{id}")
@@ -42,9 +45,11 @@ public class ShopController {
     }
 
     @GetMapping("/shops/{shopId}/products")
-    public List<ProductResponseDto> getProductsByShop(@PathVariable long shopId){
+    public Page<ProductResponseDto> getProductsByShop(
+            @PathVariable long shopId,
+            @PageableDefault(page = 0, size = 50, sort = "id", direction = Sort.Direction.ASC) Pageable pageable)
+    {
         log.info("GET /api/shops/{}/products - fetching products with shopId={}", shopId, shopId);
-        return shopService.getProductsByShop(shopId);
+        return shopService.getProductsByShop(shopId, pageable);
     }
-
 }

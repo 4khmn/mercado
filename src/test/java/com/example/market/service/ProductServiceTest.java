@@ -14,6 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,13 +50,13 @@ public class ProductServiceTest {
         // GIVEN: подготавливаем данные
         Product product1 = new Product();
         Product product2 = new Product();
-
+        Pageable pageable = PageRequest.of(0, 5);
         List<Product> products = List.of(product1, product2);
         ProductResponseDto dto1 = new ProductResponseDto();
         ProductResponseDto dto2 = new ProductResponseDto();
-
-        given(productRepository.findAll())
-                .willReturn(products);
+        Page<Product> page = new PageImpl<>(products);
+        given(productRepository.findAll(pageable))
+                .willReturn(page);
 
         given(mapper.toDto(product1))
                 .willReturn(dto1);
@@ -61,14 +65,14 @@ public class ProductServiceTest {
                 .willReturn(dto2);
 
         // WHEN: вызываем метод сервиса
-        List<ProductResponseDto> result = productService.getAllProducts();
+        Page<ProductResponseDto> result = productService.getAllProducts(pageable);
 
         // THEN: проверяем результат
-        assertEquals(2, result.size());
-        assertTrue(result.contains(dto1));
-        assertTrue(result.contains(dto2));
+        assertEquals(2, result.getTotalElements());
+        assertTrue(result.stream().toList().contains(dto1));
+        assertTrue(result.stream().toList().contains(dto2));
 
-        verify(productRepository).findAll();
+        verify(productRepository).findAll(pageable);
     }
     //////////////////////////
 
