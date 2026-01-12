@@ -1,4 +1,4 @@
-package com.example.market;
+package com.example.market.service;
 
 import com.example.market.dto.create.ProductCreateDto;
 import com.example.market.dto.response.ProductResponseDto;
@@ -8,7 +8,6 @@ import com.example.market.model.Product;
 import com.example.market.model.Shop;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.ShopRepository;
-import com.example.market.service.ProductService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +42,7 @@ public class ProductServiceTest {
 
     /// GET ALL PRODUCTS ///
     @Test
-    void getAllProducts_returnsListOfProductDtos(){
+    void getAllProducts_returnsListOfProductResponseDtos(){
         // GIVEN: подготавливаем данные
         Product product1 = new Product();
         Product product2 = new Product();
@@ -75,7 +74,7 @@ public class ProductServiceTest {
 
     /// GET PRODUCT BY ID ///
     @Test
-    void getProductById_returnProductDto(){
+    void getProductById_returnProductResponseDto(){
         long productId = 1L;
 
         Product product = new Product();
@@ -113,7 +112,7 @@ public class ProductServiceTest {
 
     ///  CREATE PRODUCT ///
     @Test
-    void createProduct_returnProductDto(){
+    void createProduct_returnProductResponseDto(){
         Long shopId = 1L;
         ProductCreateDto createDto = new ProductCreateDto();
         Product product = new Product();

@@ -17,6 +17,7 @@ public class ProductController {
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
+
     @CreatedEntity("Product")
     @PostMapping("/products")
     public ProductResponseDto createProduct(@RequestBody ProductCreateDto product){
@@ -28,6 +29,7 @@ public class ProductController {
     public List<ProductResponseDto> getAllProducts(){
         return productService.getAllProducts();
     }
+
     @GetEntity("Product")
     @GetMapping("/products/{id}")
     public ProductResponseDto getProductById(@PathVariable(name = "id") long id){

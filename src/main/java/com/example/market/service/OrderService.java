@@ -32,19 +32,18 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderMapper mapper;
     private final CartItemRepository cartItemRepository;
-    private final OrderMapper orderMapper;
 
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, OrderMapper mapper, CartItemRepository cartItemRepository, OrderMapper orderMapper, OrderItemMapper orderItemMapper) {
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, OrderMapper mapper, CartItemRepository cartItemRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.mapper = mapper;
         this.cartItemRepository = cartItemRepository;
-        this.orderMapper = orderMapper;
     }
     @Transactional
     public OrderResponseDto createOrder(User authUser, List<Long> dto){
-        User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
+        User user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
         List<CartItem> cartItems = cartItemRepository.getCartItemsByIdInAndUserId(dto, user.getId());
         if (cartItems.isEmpty()){
             throw new CartException("No cartItems found for order");
@@ -79,7 +78,7 @@ public class OrderService {
         orderRepository.save(order);
         cartItemRepository.deleteAll(cartItems);
 
-        OrderResponseDto orderResponseDto = orderMapper.toDto(order);
+        OrderResponseDto orderResponseDto = mapper.toDto(order);
         for (int i=0; i<orderResponseDto.getItems().size(); i++){
             orderResponseDto.getItems().get(i).setProductId(cartItems.get(i).getProduct().getId());
         }

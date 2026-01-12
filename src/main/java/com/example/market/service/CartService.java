@@ -34,12 +34,20 @@ public class CartService {
     public List<CartItemResponseDto> getCartByUser(long id){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id=" + id + " not found"));
-        List<CartItemResponseDto> cartItems = user.getCart().stream().map(cartMapper::toDto).toList();
+        List<CartItemResponseDto> cartItems = user.getCart().stream()
+                .map(cartItem -> {
+                    CartItemResponseDto dto = cartMapper.toDto(cartItem);
+                    long shopId = cartItem.getProduct().getShop().getId();
+                    dto.getProduct().setShopId(shopId);
+                    return dto;
+                })
+                .toList();
         return cartItems;
     }
 
     public List<CartItemResponseDto> getCart(User authUser){
-        User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
+        User user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
 
         List<CartItemResponseDto> cartItems = user.getCart().stream()
                 .map(cartItem -> {
@@ -53,9 +61,12 @@ public class CartService {
     }
 
     public CartItemResponseDto addCartItem(CartItemCreateDto cartItemDto, User authUser) throws IllegalQuantityException {
-        User user = userRepository.findById(authUser.getId()).orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
-        Product product = productRepository.findById(cartItemDto.getProductId()).orElseThrow(() -> new NotFoundException("Product with id=" + cartItemDto.getProductId() + " not found"));
-        Optional<CartItem> cartItemByProductIdByUserId = cartItemRepository.getCartItemByProductIdAndUserId(cartItemDto.getProductId(), user.getId());
+        User user = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new NotFoundException("User with id=" + authUser.getId() + " not found"));
+        Product product = productRepository.findById(cartItemDto.getProductId())
+                .orElseThrow(() -> new NotFoundException("Product with id=" + cartItemDto.getProductId() + " not found"));
+        Optional<CartItem> cartItemByProductIdByUserId = cartItemRepository
+                .getCartItemByProductIdAndUserId(cartItemDto.getProductId(), user.getId());
         CartItem cartItem;
         long shopId = product.getShop().getId();
         if (cartItemByProductIdByUserId.isPresent()){
