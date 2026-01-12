@@ -8,11 +8,14 @@ import com.example.market.model.Product;
 import com.example.market.model.Shop;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.ShopRepository;
+import com.example.market.specification.ProductSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 @Service
 public class ProductService {
@@ -49,4 +52,25 @@ public class ProductService {
                 .orElseThrow(()-> new EntityNotFoundException("Product with id=" + id + " not found"));
         return mapper.toDto(product);
     }
+
+    public Page<ProductResponseDto> searchProduct(
+            String keyword,
+            Boolean inStock,
+            BigDecimal priceFrom,
+            BigDecimal priceTo,
+            List<Long> shopId,
+            Pageable pageable
+    ) {
+        Specification<Product> specification = ProductSpecification.searchByKeyword(keyword);
+        if (inStock!=null || Boolean.TRUE.equals(inStock)) {
+            specification = specification.and(ProductSpecification.hasStock());
+        }
+        specification = specification
+                .and(ProductSpecification.priceFrom(priceFrom))
+                .and(ProductSpecification.priceTo(priceTo))
+                .and(ProductSpecification.shopId(shopId));
+        Page<Product> products = productRepository.findAll(specification, pageable);
+        return products.map(mapper::toDto);
+    }
+
 }

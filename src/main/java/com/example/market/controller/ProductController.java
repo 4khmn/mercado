@@ -4,7 +4,9 @@ import com.example.market.annotation.GetAllEntities;
 import com.example.market.annotation.GetEntity;
 import com.example.market.dto.create.ProductCreateDto;
 import com.example.market.dto.response.ProductResponseDto;
+import com.example.market.repository.ProductRepository;
 import com.example.market.service.ProductService;
+import com.example.market.specification.ProductSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,15 +14,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/api")
 public class ProductController {
     private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductRepository productRepository) {
         this.productService = productService;
+        this.productRepository = productRepository;
     }
 
     @PostMapping("/products")
@@ -43,5 +48,17 @@ public class ProductController {
     public ProductResponseDto getProductById(@PathVariable(name = "id") long id){
         return productService.getProductById(id);
     }
+
+    @GetMapping("/products/search")
+    public Page<ProductResponseDto> searchProducts(
+            String keyword,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(required = false) BigDecimal priceFrom,
+            @RequestParam(required = false) BigDecimal priceTo,
+            @RequestParam(required = false) List<Long> shopId,
+            @PageableDefault(size = 20) Pageable pageable){
+        return productService.searchProduct(keyword,inStock, priceFrom, priceTo, shopId, pageable);
+    }
+
 
 }
