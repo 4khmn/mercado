@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.dto.create.ProductCreateDto;
 import com.example.market.dto.response.ProductResponseDto;
+import com.example.market.enums.ProductCategory;
 import com.example.market.exception.NotFoundException;
 import com.example.market.mapper.ProductMapper;
 import com.example.market.model.Product;
@@ -46,7 +47,7 @@ public class ProductServiceTest {
 
     /// GET ALL PRODUCTS ///
     @Test
-    void getAllProducts_returnsListOfProductResponseDtos(){
+    void getAllProductsWithoutCategory_returnsListOfProductResponseDtos(){
         // GIVEN: подготавливаем данные
         Product product1 = new Product();
         Product product2 = new Product();
@@ -65,7 +66,7 @@ public class ProductServiceTest {
                 .willReturn(dto2);
 
         // WHEN: вызываем метод сервиса
-        Page<ProductResponseDto> result = productService.getAllProducts(pageable);
+        Page<ProductResponseDto> result = productService.getAllProducts(pageable, null);
 
         // THEN: проверяем результат
         assertEquals(2, result.getTotalElements());
@@ -73,6 +74,32 @@ public class ProductServiceTest {
         assertTrue(result.stream().toList().contains(dto2));
 
         verify(productRepository).findAll(pageable);
+    }
+
+    @Test
+    void getAllProductsWithCategory_returnsListOfProductResponseDtos(){
+        Product product1 = new Product();
+        Pageable pageable = PageRequest.of(0, 5);
+        List<Product> products = List.of(product1);
+        product1.setCategory(ProductCategory.BOOKS);
+        ProductResponseDto dto1 = new ProductResponseDto();
+        dto1.setCategory(ProductCategory.BOOKS);
+        Page<Product> page = new PageImpl<>(products);
+        given(productRepository.getProductsByCategory(ProductCategory.BOOKS, pageable))
+                .willReturn(page);
+
+        given(mapper.toDto(product1))
+                .willReturn(dto1);
+
+
+        // WHEN: вызываем метод сервиса
+        Page<ProductResponseDto> result = productService.getAllProducts(pageable, "books");
+
+        // THEN: проверяем результат
+        assertEquals(1, result.getTotalElements());
+        assertTrue(result.stream().toList().contains(dto1));
+
+        verify(productRepository).getProductsByCategory(ProductCategory.BOOKS, pageable);
     }
     //////////////////////////
 

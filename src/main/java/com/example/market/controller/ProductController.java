@@ -4,9 +4,8 @@ import com.example.market.annotation.GetAllEntities;
 import com.example.market.annotation.GetEntity;
 import com.example.market.dto.create.ProductCreateDto;
 import com.example.market.dto.response.ProductResponseDto;
-import com.example.market.repository.ProductRepository;
+import com.example.market.enums.ProductCategory;
 import com.example.market.service.ProductService;
-import com.example.market.specification.ProductSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +20,9 @@ import java.util.List;
 @RequestMapping("/api")
 public class ProductController {
     private final ProductService productService;
-    private final ProductRepository productRepository;
 
-    public ProductController(ProductService productService, ProductRepository productRepository) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
-        this.productRepository = productRepository;
     }
 
     @PostMapping("/products")
@@ -39,8 +36,14 @@ public class ProductController {
     @GetAllEntities("Product")
     @GetMapping("/products")
     public Page<ProductResponseDto> getAllProducts(
-            @PageableDefault(page = 0, size = 50, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
-        return productService.getAllProducts(pageable);
+            @PageableDefault(page = 0, size = 50, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) String category) {
+        return productService.getAllProducts(pageable, category);
+    }
+
+    @GetMapping("/products/categories")
+    public List<ProductCategory> getAllCategories(){
+        return productService.getAllCategories();
     }
 
     @GetEntity("Product")
@@ -48,6 +51,9 @@ public class ProductController {
     public ProductResponseDto getProductById(@PathVariable(name = "id") long id){
         return productService.getProductById(id);
     }
+
+
+
 
     @GetMapping("/products/search")
     public Page<ProductResponseDto> searchProducts(

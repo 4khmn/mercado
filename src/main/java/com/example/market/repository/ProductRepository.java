@@ -1,5 +1,6 @@
 package com.example.market.repository;
 
+import com.example.market.enums.ProductCategory;
 import com.example.market.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,4 +16,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     Page<Product> getProductsByShopId(long id, Pageable pageable);
 
+    Page<Product> getProductsByCategory(ProductCategory category, Pageable pageable);
+
+    @Query("SELECT DISTINCT p.category FROM Product p WHERE p.category != 'null'")
+    List<ProductCategory> findDistinctCategories();
 }

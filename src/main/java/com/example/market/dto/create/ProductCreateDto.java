@@ -1,5 +1,6 @@
 package com.example.market.dto.create;
 
+import com.example.market.enums.ProductCategory;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -15,4 +16,6 @@ public class ProductCreateDto {
     private Integer stock;
 
     private long shopId;
+
+    private ProductCategory category;
 }

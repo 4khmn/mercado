@@ -1,5 +1,6 @@
 package com.example.market.model;
 
+import com.example.market.enums.ProductCategory;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -30,4 +31,7 @@ public class Product {
             name = "shop_id",
             nullable = false)
     private Shop shop;
+
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
 }

@@ -2,6 +2,7 @@ package com.example.market.service;
 
 import com.example.market.dto.create.ProductCreateDto;
 import com.example.market.dto.response.ProductResponseDto;
+import com.example.market.enums.ProductCategory;
 import com.example.market.exception.NotFoundException;
 import com.example.market.mapper.ProductMapper;
 import com.example.market.model.Product;
@@ -30,13 +31,18 @@ public class ProductService {
         this.mapper = mapper;
     }
 
-    public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
-        Page<Product> products = productRepository.findAll(pageable);
-        return products.map(mapper::toDto);
+    public Page<ProductResponseDto> getAllProducts(Pageable pageable, String category) {
+        if (category == null) {
+            Page<Product> products = productRepository.findAll(pageable);
+            return products.map(mapper::toDto);
+        }
+        else{
+            Page<Product> products = productRepository.getProductsByCategory(ProductCategory.valueOf(category.toUpperCase()), pageable);
+            return products.map(mapper::toDto);
+        }
     }
 
     public ProductResponseDto createProduct(ProductCreateDto dto){
-
         Product product = mapper.toEntity(dto);
         Shop shop = shopRepository.findById(dto.getShopId())
                 .orElseThrow(() -> new NotFoundException("Shop with id=" + dto.getShopId() + " not found"));
@@ -73,4 +79,7 @@ public class ProductService {
         return products.map(mapper::toDto);
     }
 
+    public List<ProductCategory> getAllCategories() {
+        return productRepository.findDistinctCategories();
+    }
 }
