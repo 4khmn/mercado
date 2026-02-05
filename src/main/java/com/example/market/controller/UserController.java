@@ -4,6 +4,7 @@ package com.example.market.controller;
 import com.example.market.annotation.GetAllEntities;
 import com.example.market.annotation.GetEntity;
 import com.example.market.dto.response.UserResponseDto;
+import com.example.market.dto.update.UpdateBalaceDto;
 import com.example.market.dto.update.UpdateEmailDto;
 import com.example.market.model.User;
 import com.example.market.service.UserService;
@@ -43,12 +44,25 @@ public class UserController {
     public UserResponseDto me(@AuthenticationPrincipal User user) {
         String username = user.getUsername();
         log.info("GET /api/profile — fetching current user with username={}", username);
-        return userService.me(username);
+        UserResponseDto currentUser = userService.me(username);
+        log.info("Current user with username={} was successfully fetched", username);
+        return currentUser;
     }
 
-    @PutMapping("/edit/email")
+    @PatchMapping("/edit/balance")
+    public UserResponseDto editBalance(@AuthenticationPrincipal User user,
+                                       @RequestBody UpdateBalaceDto updateBalaceDto){
+        log.info("PATCH /api/edit/balance - updating balance for username={}", user.getUsername());
+        UserResponseDto userResponseDto = userService.updateBalance(user.getUsername(), updateBalaceDto);
+        log.info("Balance for username={} was successfully updated", user.getUsername());
+        return userResponseDto;
+    }
+    @PatchMapping("/edit/email")
     public UserResponseDto editEmail(@AuthenticationPrincipal User user,
                                      @RequestBody UpdateEmailDto updateEmailDto){
-        return userService.updateEmail(user.getUsername(), updateEmailDto);
+        log.info("PATCH /api/edit/email - updating email for username={}", user.getUsername());
+        UserResponseDto userResponseDto = userService.updateEmail(user.getUsername(), updateEmailDto);
+        log.info("Email for username={} was successfully updated", user.getUsername());
+        return userResponseDto;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.market.model;
 
+import com.example.market.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -33,4 +34,7 @@ public class Order {
 
     @Column(name="total_items_quantity")
     private long totalItemsQuantity;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 }

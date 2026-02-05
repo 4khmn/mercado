@@ -2,7 +2,10 @@ package com.example.market.service;
 
 import com.example.market.dto.create.CartItemCreateDto;
 import com.example.market.dto.response.CartItemResponseDto;
+import com.example.market.dto.response.CartResponseDto;
 import com.example.market.dto.response.ProductResponseDto;
+import com.example.market.dto.update.UpdateCartItemQuantity;
+import com.example.market.enums.QuantityDirection;
 import com.example.market.exception.IllegalQuantityException;
 import com.example.market.exception.NotFoundException;
 import com.example.market.mapper.CartMapper;
@@ -20,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,16 +66,22 @@ public class CartServiceTest {
         shop1.setId(1);
         shop2.setId(2);
         product1.setShop(shop1);
+        product1.setPrice(new BigDecimal(1));
         product2.setShop(shop2);
+        product2.setPrice(new BigDecimal(2));
         item1.setProduct(product1);
         item2.setProduct(product2);
 
         user.setCart(List.of(item1, item2));
 
         CartItemResponseDto dto1 = new CartItemResponseDto();
+        dto1.setQuantity(1);
         CartItemResponseDto dto2 = new CartItemResponseDto();
+        dto2.setQuantity(1);
         ProductResponseDto productResponseDto1 = new ProductResponseDto();
+        productResponseDto1.setPrice(new BigDecimal(1));
         ProductResponseDto productResponseDto2 = new ProductResponseDto();
+        productResponseDto2.setPrice(new BigDecimal(2));
 
         dto1.setProduct(productResponseDto1);
         dto2.setProduct(productResponseDto2);
@@ -81,11 +91,12 @@ public class CartServiceTest {
         given(cartMapper.toDto(item1)).willReturn(dto1);
         given(cartMapper.toDto(item2)).willReturn(dto2);
 
-        List<CartItemResponseDto> result = cartService.getCartByUser(1L);
+        CartResponseDto result = cartService.getCartByUser(1L);
 
-        assertEquals(2, result.size());
-        assertTrue(result.contains(dto1));
-        assertTrue(result.contains(dto2));
+        assertEquals(2, result.getCart().size());
+        assertEquals(new BigDecimal(3), result.getTotalPrice());
+        assertTrue(result.getCart().contains(dto1));
+        assertTrue(result.getCart().contains(dto2));
 
         verify(userRepository).findById(1L);
         verify(cartMapper, times(2)).toDto(any());
@@ -137,6 +148,7 @@ public class CartServiceTest {
         CartItemResponseDto cartItemResponseDto = new CartItemResponseDto();
 
         ProductResponseDto productDto = new ProductResponseDto();
+        productDto.setStock(10);
         cartItemResponseDto.setProduct(productDto);
 
         given(userRepository.findById(authUser.getId()))
@@ -156,8 +168,9 @@ public class CartServiceTest {
         assertNotNull(result);
         assertEquals(shopId, result.getProduct().getShopId());
         assertEquals(4, cartItem.getQuantity());
+        assertEquals(10, result.getProduct().getStock());
+        assertEquals(result,  cartItemResponseDto);
 
-        verify(cartItemRepository).save(cartItem);
         verify(cartMapper).toDto(cartItem);
     }
 
@@ -187,6 +200,7 @@ public class CartServiceTest {
         CartItemResponseDto cartItemResponseDto = new CartItemResponseDto();
 
         ProductResponseDto productDto = new ProductResponseDto();
+        productDto.setStock(10);
         cartItemResponseDto.setProduct(productDto);
 
         given(userRepository.findById(authUser.getId()))
@@ -205,7 +219,9 @@ public class CartServiceTest {
         CartItemResponseDto result = cartService.addCartItem(cartItemCreateDto, authUser);
 
         assertNotNull(result);
+        assertEquals(result, cartItemResponseDto);
         assertEquals(shopId, result.getProduct().getShopId());
+        assertEquals(10, result.getProduct().getStock());
 
         ArgumentCaptor<CartItem> cartItemArgumentCaptor = ArgumentCaptor.forClass(CartItem.class);
         verify(cartItemRepository).save(cartItemArgumentCaptor.capture());
@@ -283,11 +299,6 @@ public class CartServiceTest {
         cartItem.setProduct(product);
         cartItem.setQuantity(2);
 
-        CartItemResponseDto cartItemResponseDto = new CartItemResponseDto();
-
-        ProductResponseDto productDto = new ProductResponseDto();
-        cartItemResponseDto.setProduct(productDto);
-
         given(userRepository.findById(authUser.getId()))
                 .willReturn(Optional.of(user));
 
@@ -305,4 +316,125 @@ public class CartServiceTest {
         verify(cartMapper, never()).toDto(any());
     }
     //////////////////////
+
+    /// UPDATE CART ITEM QUANTITY ///
+    @Test
+    void updateQuantity_currentQuantity2_down(){
+        Long userId = 1L;
+        Long shopId = 10L;
+        Long productId = 1L;
+
+        User authUser = new User();
+        authUser.setId(userId);
+        User user = new User();
+        user.setId(userId);
+
+        Shop shop = new Shop();
+        shop.setId(shopId);
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setShop(shop);
+        product.setStock(10);
+
+        CartItem cartItem = new CartItem();
+        cartItem.setId(1);
+        cartItem.setUser(user);
+        cartItem.setProduct(product);
+        cartItem.setQuantity(2);
+        user.setCart(List.of(cartItem));
+
+        UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity();
+        updateCartItemQuantity.setCartItemId(1L);
+        updateCartItemQuantity.setDirection(QuantityDirection.DOWN);
+
+
+
+        CartItemResponseDto cartItemResponseDto = new CartItemResponseDto();
+
+        ProductResponseDto productDto = new ProductResponseDto();
+        productDto.setStock(10);
+        cartItemResponseDto.setProduct(productDto);
+        cartItemResponseDto.setQuantity(1);
+
+        given(userRepository.findById(authUser.getId()))
+                .willReturn(Optional.of(user));
+
+
+
+        given(cartMapper.toDto(cartItem))
+                .willReturn(cartItemResponseDto);
+
+
+        CartItemResponseDto result = cartService.updateQuantity(authUser, updateCartItemQuantity);
+
+        assertNotNull(result);
+        assertEquals(cartItemResponseDto, result);
+        assertEquals(1, cartItem.getQuantity());
+        assertEquals(1, result.getQuantity());
+        assertEquals(10, result.getProduct().getStock());
+
+        verify(cartMapper).toDto(cartItem);
+        verify(cartItemRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void updateQuantity_currentQuantity1_down(){
+        Long userId = 1L;
+        Long shopId = 10L;
+        Long productId = 1L;
+
+        User authUser = new User();
+        authUser.setId(userId);
+        User user = new User();
+        user.setId(userId);
+
+        Shop shop = new Shop();
+        shop.setId(shopId);
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setShop(shop);
+        product.setStock(10);
+
+        CartItem cartItem = new CartItem();
+        cartItem.setId(1);
+        cartItem.setUser(user);
+        cartItem.setProduct(product);
+        cartItem.setQuantity(1);
+        user.setCart(List.of(cartItem));
+
+        UpdateCartItemQuantity updateCartItemQuantity = new UpdateCartItemQuantity();
+        updateCartItemQuantity.setCartItemId(1L);
+        updateCartItemQuantity.setDirection(QuantityDirection.DOWN);
+
+
+
+        CartItemResponseDto cartItemResponseDto = new CartItemResponseDto();
+
+        ProductResponseDto productDto = new ProductResponseDto();
+        productDto.setStock(10);
+        cartItemResponseDto.setProduct(productDto);
+        cartItemResponseDto.setQuantity(0);
+
+        given(userRepository.findById(authUser.getId()))
+                .willReturn(Optional.of(user));
+
+
+
+        given(cartMapper.toDto(cartItem))
+                .willReturn(cartItemResponseDto);
+
+
+        CartItemResponseDto result = cartService.updateQuantity(authUser, updateCartItemQuantity);
+
+        assertNotNull(result);
+        assertEquals(cartItemResponseDto, result);
+        assertEquals(0, cartItem.getQuantity());
+        assertEquals(0, result.getQuantity());
+        assertEquals(10, result.getProduct().getStock());
+
+        verify(cartMapper).toDto(cartItem);
+        verify(cartItemRepository).deleteById(1L);
+    }
 }

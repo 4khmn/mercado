@@ -1,14 +1,11 @@
 package com.example.market.service;
 
-import com.example.market.dto.create.OrderCreateDto;
-import com.example.market.dto.response.OrderItemResponseDto;
 import com.example.market.dto.response.OrderResponseDto;
-import com.example.market.dto.response.ProductResponseDto;
+import com.example.market.enums.OrderStatus;
 import com.example.market.exception.CartException;
+import com.example.market.exception.NotEnoughMoneyException;
 import com.example.market.exception.NotFoundException;
-import com.example.market.mapper.OrderItemMapper;
 import com.example.market.mapper.OrderMapper;
-import com.example.market.mapper.ProductMapper;
 import com.example.market.model.*;
 import com.example.market.repository.CartItemRepository;
 import com.example.market.repository.OrderRepository;
@@ -16,32 +13,24 @@ import com.example.market.repository.ProductRepository;
 import com.example.market.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final ProductRepository productRepository;
     private final OrderMapper mapper;
     private final CartItemRepository cartItemRepository;
 
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, OrderMapper mapper, CartItemRepository cartItemRepository) {
-        this.orderRepository = orderRepository;
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-        this.mapper = mapper;
-        this.cartItemRepository = cartItemRepository;
-    }
     @Transactional
     public OrderResponseDto createOrder(User authUser, List<Long> dto){
         User user = userRepository.findById(authUser.getId())
@@ -51,6 +40,7 @@ public class OrderService {
             throw new CartException("No cartItems found for order");
         }
         Order order = new Order();
+        order.setStatus(OrderStatus.AWAITING_PAYMENT);
         order.setUser(user);
         order.setCreatedAt(LocalDateTime.now());
         List<OrderItem> orderItems = new ArrayList<>();
@@ -77,6 +67,13 @@ public class OrderService {
         }
         order.setTotalPrice(totalPrice);
         order.setTotalItemsQuantity(totalItemsQuantity);
+        if (user.getBalance().compareTo(totalPrice)==-1){
+            order.setStatus(OrderStatus.CANCELLED);
+            throw new NotEnoughMoneyException("Not enough money");
+        } else {
+            user.setBalance(user.getBalance().subtract(totalPrice));
+            order.setStatus(OrderStatus.PAID);
+        }
         orderRepository.save(order);
         cartItemRepository.deleteAll(cartItems);
 

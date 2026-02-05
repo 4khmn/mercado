@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +32,8 @@ public class User implements UserDetails {
     private String password;
 
     private String roles;
+
+    private BigDecimal balance;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -67,12 +70,16 @@ public class User implements UserDetails {
     }
 
     // НЕ включаем cart, чтобы избежать рекурсии
+
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
+                "balance=" + balance +
+                ", roles='" + roles + '\'' +
+                ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", id=" + id +
                 '}';
     }
 }

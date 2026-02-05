@@ -7,6 +7,7 @@ import com.example.market.dto.response.OrderResponseDto;
 import com.example.market.dto.response.ProductResponseDto;
 import com.example.market.exception.CartException;
 import com.example.market.exception.IllegalQuantityException;
+import com.example.market.exception.NotEnoughMoneyException;
 import com.example.market.exception.NotFoundException;
 import com.example.market.mapper.CartMapper;
 import com.example.market.mapper.OrderMapper;
@@ -59,6 +60,7 @@ public class OrderServiceTest {
 
         User user = new User();
         user.setId(userId);
+        user.setBalance(new BigDecimal(1000000));
 
         User authUser = new User();
         authUser.setId(userId);
@@ -203,6 +205,62 @@ public class OrderServiceTest {
         verify(orderRepository, never()).save(any());
         verify(cartItemRepository, never()).deleteAll(any());
         verify(mapper, never()).toDto(any());
+    }
+
+    @Test
+    void createOrder_notEnoughMoney_throwNotEnoughMoneyException(){
+        Long userId = 1L;
+        Long product1Id = 1L;
+        Long product2Id = 2L;
+
+        User user = new User();
+        user.setId(userId);
+        user.setBalance(new BigDecimal(0));
+
+        User authUser = new User();
+        authUser.setId(userId);
+
+        List<Long> dto = List.of(1L, 2L);
+
+        Product product1 = new Product();
+        product1.setId(product1Id);
+        product1.setStock(10);
+        product1.setPrice(new BigDecimal(1));
+
+        Product product2 = new Product();
+        product2.setId(product2Id);
+        product2.setStock(10);
+        product2.setPrice(new BigDecimal(2));
+
+        CartItem cartItem1 = new CartItem();
+        cartItem1.setId(1L);
+        cartItem1.setQuantity(1);
+        cartItem1.setUser(user);
+        cartItem1.setProduct(product1);
+
+        CartItem cartItem2 = new CartItem();
+        cartItem2.setId(2L);
+        cartItem2.setQuantity(1);
+        cartItem2.setUser(user);
+        cartItem2.setProduct(product2);
+
+        List<CartItem> cartItems = new ArrayList<>();
+        cartItems.add(cartItem1);
+        cartItems.add(cartItem2);
+
+        given(userRepository.findById(authUser.getId()))
+                .willReturn(Optional.of(user));
+
+        given(cartItemRepository.getCartItemsByIdInAndUserId(dto, user.getId()))
+                .willReturn(cartItems);
+
+        assertThrows(NotEnoughMoneyException.class,
+                () -> orderService.createOrder(authUser, dto));
+
+        verify(orderRepository, never()).save(any());
+        verify(cartItemRepository, never()).deleteAll(any());
+        verify(mapper, never()).toDto(any());
+
     }
     ///////////////////////
 

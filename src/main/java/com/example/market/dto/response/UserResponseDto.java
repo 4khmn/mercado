@@ -2,6 +2,8 @@ package com.example.market.dto.response;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class UserResponseDto {
 
@@ -10,4 +12,6 @@ public class UserResponseDto {
     private String username;
 
     private String email;
+
+    private BigDecimal balance;
 }

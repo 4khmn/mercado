@@ -6,5 +6,5 @@ public enum ProductCategory {
     HOME_GOODS,
     TOYS,
     BOOKS,
-    FOOD
+    FOODw
 }

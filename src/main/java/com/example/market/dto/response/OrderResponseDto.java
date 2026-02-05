@@ -1,5 +1,6 @@
 package com.example.market.dto.response;
 
+import com.example.market.enums.OrderStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -20,4 +21,6 @@ public class OrderResponseDto {
     private BigDecimal totalPrice;
 
     private long totalItemsQuantity;
+
+    private OrderStatus status;
 }
