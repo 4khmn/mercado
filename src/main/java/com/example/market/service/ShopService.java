@@ -10,6 +10,7 @@ import com.example.market.model.Shop;
 import com.example.market.repository.ProductRepository;
 import com.example.market.repository.ShopRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,7 +36,7 @@ public class ShopService {
         Page<Shop> shops = shopRepository.findAll(pageable);
         return shops.map(shopMapper::toDto);
     }
-
+    @Cacheable(value = "shops", key = "#id")
     public ShopResponseDto getShopById(long id){
         Shop shop = shopRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Shop with id=" + id + " not found"));

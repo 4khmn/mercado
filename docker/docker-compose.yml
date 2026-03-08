@@ -4,6 +4,7 @@ services:
     container_name: redis_container
     ports:
       - "6379:6379"
+
   db:
     image: mysql:8.0
     container_name: mysql_container
@@ -19,3 +20,22 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: market_app
+    depends_on:
+      db:
+        condition: service_healthy
+      my-redis:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/market
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATA_REDIS_HOST: my-redis
+    ports:
+      - "8080:8080"

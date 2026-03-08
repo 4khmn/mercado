@@ -20,7 +20,6 @@ public class RedisConfig {
         RedisSerializer<Object> jsonSerializer = RedisSerializer.json();
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(5))
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(RedisSerializer.string())
                 )
