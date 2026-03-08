@@ -11,6 +11,7 @@ import com.example.market.repository.ProductRepository;
 import com.example.market.repository.ShopRepository;
 import com.example.market.specification.ProductSpecification;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -52,7 +53,7 @@ public class ProductService {
 
         return mapper.toDto(product);
     }
-
+    @Cacheable(value = "products", key = "#id")
     public ProductResponseDto getProductById(long id){
         Product product = productRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("Product with id=" + id + " not found"));

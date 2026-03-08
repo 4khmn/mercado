@@ -1,2 +1,2 @@
 ALTER TABLE users
-    RENAME COLUMN "name" TO username;
+    RENAME COLUMN name TO username;
